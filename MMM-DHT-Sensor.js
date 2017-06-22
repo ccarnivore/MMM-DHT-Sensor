@@ -8,6 +8,8 @@ Module.register('MMM-DHT-Sensor', {
     defaults: {
         sensorPIN: 4,
         sensorType: 11, // 11 OR 22
+        fanPIN: 17,
+        fanTemperature: 30.0,
         updateInterval: 2000, // in milliseconds
         animationSpeed: 0, // in milliseconds
         titleText: "DHT",

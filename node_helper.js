@@ -7,6 +7,7 @@
 
 const NodeHelper = require('node_helper');
 const RpiDht = require('rpi-dht-sensor');
+const GPIO = require('pi-gpio');
 
 module.exports = NodeHelper.create({
     start: function() {
@@ -33,9 +34,16 @@ module.exports = NodeHelper.create({
     checkTemperature: function() {
         const self = this;
 
+        GPIO.open(17, "output", function() {
+            GPIO.write(17, 1, function() {
+                GPIO.close(17);
+            })
+        });
+
         var readout = this.dht.read();
         var temp = readout.temperature.toFixed(1);
         var hum = readout.humidity.toFixed(1);
+
 
         if (hum > 0) {
             self.sendSocketNotification('DHT_TEMPERATURE', temp);
