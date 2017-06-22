@@ -3,12 +3,17 @@
     display: inline;
 }
 
-.dht-text{
+.dht-text {
     float: right;
     display: inline;
 }
 
-.dht{
+.dht {
     float: right;
     width: 150px;
+}
+
+.dhtContainer {
+    font-size: 16pt;
+    line-height: 24px;
 }

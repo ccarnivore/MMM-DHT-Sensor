@@ -10,6 +10,9 @@ const RpiDht = require('rpi-dht-sensor');
 const GPIO = require('pi-gpio');
 
 module.exports = NodeHelper.create({
+    state: false,
+    fan: false,
+
     start: function() {
         console.log("Starting helper: " + this.name);
     },
@@ -33,21 +36,40 @@ module.exports = NodeHelper.create({
 
     checkTemperature: function() {
         const self = this;
-
-        GPIO.open(17, "output", function() {
-            GPIO.write(17, 1, function() {
-                GPIO.close(17);
-            })
-        });
-
         var readout = this.dht.read();
         var temp = readout.temperature.toFixed(1);
         var hum = readout.humidity.toFixed(1);
 
+        if (!this.state) {
+            GPIO.open(this.config.fanPIN, "output", function() {
+                self.state = true;
+            });
+        } else {
+            GPIO.read(this.config.fanPIN, function(err, val) {
+                if (temp >= self.config.fanTemperature) {
+                    if (val == 0) {
+                        GPIO.write(self.config.fanPIN, 1, function () {
+                            self.fan = true;
+                        });
+                    } else {
+                        self.fan = true;
+                    }
+                } else {
+                    if (val == 1) {
+                        GPIO.write(self.config.fanPIN, 0, function () {
+                            self.fan = false;
+                        });
+                    } else {
+                        self.fan = false;
+                    }
+                }
+            })
+        }
 
         if (hum > 0) {
             self.sendSocketNotification('DHT_TEMPERATURE', temp);
             self.sendSocketNotification('DHT_HUMIDITY', hum);
+            self.sendSocketNotification('DHT_FAN', self.fan);
         }
     }
 });
